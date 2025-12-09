@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danz S1 - Ai Online Dark</title>
+  <link rel="icon" type="image/png" href="https://freeimage.host/i/2G3WYSp">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #000; color: #0f0;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      height: 100vh; overflow: hidden; padding: 20px;
+    }
+    .chat-container {
+      width: 100%; max-width: 900px;
+      background: #111; border: 2px solid #0f0;
+      border-radius: 10px; padding: 20px;
+      box-shadow: 0 0 20px #0f0; flex-shrink: 0;
+    }
+    .chat-header { text-align: center; margin-bottom: 15px; }
+    .chat-header h1 {
+      font-size: 1.5rem; text-transform: uppercase;
+      text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+    }
+    .chat-messages {
+      height: 400px; overflow-y: auto;
+      background: #000; padding: 10px;
+      border-radius: 10px; border: 2px solid #0f0;
+      margin-bottom: 15px; font-size: 0.9rem;
+    }
+    .message { margin-bottom: 15px; display: flex; opacity: 0;
+      animation: fadeIn 0.3s ease forwards; }
+    .user-message { justify-content: flex-end; }
+    .bot-message { justify-content: flex-start; }
+    .message-content {
+      padding: 10px; border-radius: 5px;
+      background: #222; box-shadow: 0 0 5px #0f0;
+    }
+    .user-message .message-content { background: #003300; }
+    .bot-message .message-content { background: #111; }
+    .input-container {
+      display: flex; gap: 10px; padding: 10px;
+      background: #000; border: 2px solid #0f0; border-radius: 10px;
+    }
+    #message-input {
+      flex: 1; padding: 10px; background: #000;
+      border: 2px solid #0f0; color: #0f0; border-radius: 5px;
+      caret-color: #0f0;
+    }
+    #send-button {
+      padding: 10px 20px; background: #111; color: #0f0;
+      border: 2px solid #0f0; border-radius: 5px;
+      cursor: pointer; font-weight: bold; text-transform: uppercase;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #send-button:hover { transform: translateY(-2px); box-shadow: 0 0 10px #0f0; }
+    .typing-indicator {
+      display: none; font-style: italic;
+      margin-top: 10px; color: #0f0;
+      text-shadow: 0 0 5px #0f0;
+    }
+    .developer-info {
+      margin-top: 20px; text-align: center;
+      color: #0f0; font-size: 0.8rem;
+      text-shadow: 0 0 5px #0f0;
+    }
+    .developer-info a { color: #0f0; text-decoration: underline; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+
+<body>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Create By Md Abrar Nadim Sihab</h1>
+    </div>
+
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="typing-indicator" id="typing-indicator">_ Typing...</div>
+
+    <div class="input-container">
+      <input type="text" id="message-input" placeholder="Type your command..." autocomplete="off">
+      <button id="send-button">Send</button>
+    </div>
+  </div>
+
+  <div class="developer-info">
+    Developed by <strong>SIHAB</strong>. Visit the official FB ID:
+    <a href="https://www.facebook.com/mdabrarnadimsihab" target="_blank">SIHAB</a>
+  </div>
+
+  <script>
+    const messageInput = document.getElementById("message-input");
+    const sendButton = document.getElementById("send-button");
+    const chatMessages = document.getElementById("chat-messages");
+    const typingIndicator = document.getElementById("typing-indicator");
+
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      addMessage(message, "user");
+      messageInput.value = "";
+      typingIndicator.style.display = "block";
+
+      try {
+        const response = await fetch("api.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+        typingIndicator.style.display = "none";
+
+        const reply = data.choices?.[0]?.message?.content || "Error: No response.";
+        addMessage(reply, "bot");
+
+      } catch (error) {
+        typingIndicator.style.display = "none";
+        addMessage("Error: Server problem.", "bot");
+      }
+    }
+
+    function addMessage(text, sender) {
+      const div = document.createElement("div");
+      div.classList.add("message", `${sender}-message`);
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("message-content");
+      bubble.textContent = text;
+
+      div.appendChild(bubble);
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    sendButton.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    addMessage("Welcome to Md Abrar Nadim Sihab ChatGPT Bot. Ready for commands.", "bot");
+  </script>
+
+</body>
+</html>
